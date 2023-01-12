@@ -1,12 +1,9 @@
 package com.talissonmelo.modelo;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-
 import javax.persistence.*;
 
 @Entity
-public class Usuario extends PanacheEntityBase {
-
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
