@@ -7,6 +7,7 @@ import com.talissonmelo.modelo.dto.PostagemDtoResponse;
 import com.talissonmelo.repositorio.PostagemRepositorio;
 import com.talissonmelo.repositorio.UsuarioRepositorio;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -48,7 +49,7 @@ public class PostagemControlador {
         if (usuario == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        PanacheQuery<Postagem> query = repositorio.find("usuario", usuario);
+        PanacheQuery<Postagem> query = repositorio.find("usuario", Sort.by("data", Sort.Direction.Descending), usuario);
         return Response.status(Response.Status.OK).entity(query.list().stream().map(PostagemDtoResponse::setPostagem).collect(Collectors.toList())).build();
     }
 
