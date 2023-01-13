@@ -3,6 +3,7 @@ package com.talissonmelo.controlador;
 import com.talissonmelo.modelo.Postagem;
 import com.talissonmelo.modelo.Usuario;
 import com.talissonmelo.modelo.dto.PostagemDto;
+import com.talissonmelo.modelo.dto.PostagemDtoResponse;
 import com.talissonmelo.repositorio.PostagemRepositorio;
 import com.talissonmelo.repositorio.UsuarioRepositorio;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
@@ -13,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Path("/usuarios/{idUsuario}/postagens")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -46,8 +48,8 @@ public class PostagemControlador {
         if (usuario == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        PanacheQuery<Postagem> postagens = repositorio.find( "usuario", usuario);
-        return Response.status(Response.Status.OK).entity(postagens.list()).build();
+        PanacheQuery<Postagem> query = repositorio.find("usuario", usuario);
+        return Response.status(Response.Status.OK).entity(query.list().stream().map(PostagemDtoResponse::setPostagem).collect(Collectors.toList())).build();
     }
 
     private Postagem criarPostagem(PostagemDto postagemDto, Usuario usuario) {
