@@ -2,14 +2,20 @@ package com.talissonmelo.controlador;
 
 import com.talissonmelo.modelo.Usuario;
 import com.talissonmelo.modelo.dto.UsuarioDto;
+import com.talissonmelo.modelo.exceptions.RespostaValidacao;
 import com.talissonmelo.repositorio.UsuarioRepositorio;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 @Path("/usuarios")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -17,19 +23,26 @@ import javax.ws.rs.core.Response;
 public class UsuarioControlador {
 
     private UsuarioRepositorio repositorio;
+    private Validator validator;
 
     @Inject
-    public UsuarioControlador(UsuarioRepositorio repositorio) {
+    public UsuarioControlador(UsuarioRepositorio repositorio, Validator validator) {
         this.repositorio = repositorio;
+        this.validator = validator;
     }
 
     @POST
     @Transactional
     public Response criarUsuario(UsuarioDto usuarioDto) {
+
+        Set<ConstraintViolation<UsuarioDto>> validacao = this.validator.validate(usuarioDto);
+        if(!validacao.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(RespostaValidacao.criarRespostaValidacao(validacao)).build();
+        }
         Usuario usuario = new Usuario();
         usuario.criarUsuario(usuarioDto.getNome(), usuarioDto.getIdade());
         repositorio.persist(usuario);
-        return Response.ok(usuario).build();
+        return Response.status(Response.Status.CREATED).entity(usuario).build();
     }
 
     @GET
@@ -47,7 +60,7 @@ public class UsuarioControlador {
             repositorio.delete(usuario);
             return Response.ok().build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
 
 
@@ -62,6 +75,6 @@ public class UsuarioControlador {
             repositorio.persist(usuario);
             return Response.ok(usuario).build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
 }
