@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank;
 
 public class PostagemDto {
 
-    @NotBlank(message ="Descricao e obrigatório!.")
+    @NotBlank(message = "Descricao e obrigatório!.")
     private String descricao;
 
     public PostagemDto() {
