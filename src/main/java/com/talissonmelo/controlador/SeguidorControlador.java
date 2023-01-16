@@ -43,6 +43,10 @@ public class SeguidorControlador {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        if (idUsuario.equals(seguidorDto.getIdSeguidor())) {
+            return Response.status(Response.Status.CONFLICT).entity("Usuário não pode seguir a si mesmo.").build();
+        }
+
         Usuario usuarioSeguidor = usuarioRepositorio.findById(seguidorDto.getIdSeguidor());
 
         Boolean seguirUsuario = repositorio.ehValidoSeguirUsuario(usuario, usuarioSeguidor);
