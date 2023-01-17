@@ -27,4 +27,9 @@ public class SeguidorRepositorio implements PanacheRepository<Seguidor> {
         PanacheQuery<Seguidor> query = find("usuario.id", idUsuario);
         return query.list();
     }
+
+    public void deletePorIdUsuarioIdSeguidor(Long idUsuario, Long idSeguidor) {
+        Map<String, Object> params = Parameters.with("idUsuario", idUsuario).and("idSeguidor", idSeguidor).map();
+        delete("usuario.id = :idUsuario and seguidor.id = :idSeguidor", params);
+    }
 }

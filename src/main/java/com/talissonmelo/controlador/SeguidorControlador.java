@@ -8,7 +8,6 @@ import com.talissonmelo.modelo.dto.SeguidorResposta;
 import com.talissonmelo.modelo.exceptions.RespostaValidacao;
 import com.talissonmelo.repositorio.SeguidorRepositorio;
 import com.talissonmelo.repositorio.UsuarioRepositorio;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -73,13 +72,24 @@ public class SeguidorControlador {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         List<Seguidor> seguidores = repositorio.buscarPorIdUsuario(idUsuario);
-        if(seguidores.size() > 0) {
-            SeguidorPorUsuarioResponse seguidorPorUsuarioResponse = new SeguidorPorUsuarioResponse();
-            seguidorPorUsuarioResponse.setQuantidadeSeguidores(seguidores.size());
+        SeguidorPorUsuarioResponse seguidorPorUsuarioResponse = new SeguidorPorUsuarioResponse();
+        seguidorPorUsuarioResponse.setQuantidadeSeguidores(seguidores.size());
+        if (seguidores.size() > 0) {
             var list = seguidores.stream().map(SeguidorResposta::new).collect(Collectors.toList());
             seguidorPorUsuarioResponse.setSeguidorRespostas(list);
-            return Response.ok(seguidorPorUsuarioResponse).build();
         }
-        return Response.ok(seguidores).build();
+        return Response.ok(seguidorPorUsuarioResponse).build();
     }
+    @DELETE
+    @Transactional
+    public Response deletarSeguidoresPorUsuario(@PathParam("idUsuario") Long idUsuario, @QueryParam("idSeguidor") Long idSeguidor) {
+        Usuario usuario = usuarioRepositorio.findById(idUsuario);
+        if (usuario == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        repositorio.deletePorIdUsuarioIdSeguidor(idUsuario, idSeguidor);
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
 }
