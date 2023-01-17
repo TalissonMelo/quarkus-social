@@ -3,9 +3,12 @@ package com.talissonmelo.controlador;
 import com.talissonmelo.modelo.Seguidor;
 import com.talissonmelo.modelo.Usuario;
 import com.talissonmelo.modelo.dto.SeguidorDto;
+import com.talissonmelo.modelo.dto.SeguidorPorUsuarioResponse;
+import com.talissonmelo.modelo.dto.SeguidorResposta;
 import com.talissonmelo.modelo.exceptions.RespostaValidacao;
 import com.talissonmelo.repositorio.SeguidorRepositorio;
 import com.talissonmelo.repositorio.UsuarioRepositorio;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -14,7 +17,9 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/usuarios/{idUsuario}/seguidores")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -59,5 +64,22 @@ public class SeguidorControlador {
             return Response.status(Response.Status.CREATED).entity(seguidor).build();
         }
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    public Response listarSeguidoresPorUsuario(@PathParam("idUsuario") Long idUsuario) {
+        Usuario usuario = usuarioRepositorio.findById(idUsuario);
+        if (usuario == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        List<Seguidor> seguidores = repositorio.buscarPorIdUsuario(idUsuario);
+        if(seguidores.size() > 0) {
+            SeguidorPorUsuarioResponse seguidorPorUsuarioResponse = new SeguidorPorUsuarioResponse();
+            seguidorPorUsuarioResponse.setQuantidadeSeguidores(seguidores.size());
+            var list = seguidores.stream().map(SeguidorResposta::new).collect(Collectors.toList());
+            seguidorPorUsuarioResponse.setSeguidorRespostas(list);
+            return Response.ok(seguidorPorUsuarioResponse).build();
+        }
+        return Response.ok(seguidores).build();
     }
 }
