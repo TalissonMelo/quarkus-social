@@ -9,8 +9,6 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
-import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -36,7 +34,7 @@ public class UsuarioControlador {
     public Response criarUsuario(UsuarioDto usuarioDto) {
 
         Set<ConstraintViolation<UsuarioDto>> validacao = this.validator.validate(usuarioDto);
-        if(!validacao.isEmpty()) {
+        if (!validacao.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(RespostaValidacao.criarRespostaValidacao(validacao)).build();
         }
         Usuario usuario = new Usuario();
@@ -56,7 +54,7 @@ public class UsuarioControlador {
     @Transactional
     public Response deletar(@PathParam("id") Long id) {
         Usuario usuario = repositorio.findById(id);
-        if(usuario != null) {
+        if (usuario != null) {
             repositorio.delete(usuario);
             return Response.ok().build();
         }
@@ -69,7 +67,7 @@ public class UsuarioControlador {
     @Transactional
     public Response atualizar(@PathParam("id") Long id, UsuarioDto usuarioDto) {
         Usuario usuario = repositorio.findById(id);
-        if(usuario != null) {
+        if (usuario != null) {
             usuario.setIdade(usuarioDto.getIdade());
             usuario.setNome(usuarioDto.getNome());
             repositorio.persist(usuario);
