@@ -6,6 +6,8 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.ws.rs.core.Response;
+
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,5 +34,25 @@ class UsuarioControladorTest {
 
         assertEquals(201, response.statusCode());
         assertNotNull(response.jsonPath().getString("id"));
+    }
+
+    @Test
+    @DisplayName("Deve dar erro ao cadastar usuário")
+    public void deveDarErroCriarUsuario() {
+
+        var usuario = new UsuarioDto();
+        usuario.setNome(null);
+        usuario.setIdade(null);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(usuario)
+                .when()
+                .post("/usuarios")
+                .then()
+                .extract()
+                .response();
+
+        assertEquals(400, response.statusCode());
     }
 }
